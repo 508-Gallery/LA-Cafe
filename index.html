@@ -698,6 +698,246 @@
       .car-dots { left:14px; bottom:28px; }
       .is-artist-name { font-size:clamp(22px,7vw,38px); }
     }
+
+    /* ══════════════════════════════════════════
+       MOBILE-ONLY COMPONENTS
+       (hidden on desktop/tablet via min-width guard)
+    ══════════════════════════════════════════ */
+
+    /* ── Mobile Proposal Hub ── */
+    #mobile-hub {
+      display: none;
+      position: fixed; inset: 0; z-index: 8000;
+      background: #0c0b0a;
+      flex-direction: column;
+      align-items: stretch;
+      overflow-y: auto;
+    }
+    #mobile-hub.active { display: flex; }
+
+    .hub-header {
+      flex-shrink: 0;
+      padding: 52px 24px 24px;
+      text-align: center;
+    }
+    .hub-logo {
+      height: 26px; margin-bottom: 18px;
+      filter: invert(1) brightness(1.1);
+      opacity: 0.88;
+    }
+    .hub-eyebrow {
+      font-size: 9px; letter-spacing: 0.28em; text-transform: uppercase;
+      color: var(--gold); margin-bottom: 10px;
+    }
+    .hub-title {
+      font-family: var(--serif);
+      font-size: clamp(22px, 6vw, 30px);
+      font-weight: 400; color: #F8F6F1; line-height: 1.15;
+    }
+
+    .hub-cards {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      padding: 4px 18px 40px;
+      flex: 1;
+    }
+
+    .hub-card {
+      position: relative;
+      border-radius: 4px;
+      overflow: hidden;
+      cursor: pointer;
+      flex: 1;
+      min-height: 100px;
+      border: 1px solid rgba(197,151,58,0.18);
+      transition: border-color 0.2s;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .hub-card:active { border-color: var(--gold); }
+
+    .hub-card-bg {
+      position: absolute; inset: 0;
+      background-size: cover; background-position: center;
+      transition: transform 0.35s ease;
+    }
+    .hub-card:active .hub-card-bg { transform: scale(1.04); }
+
+    .hub-card::after {
+      content: '';
+      position: absolute; inset: 0;
+      background: linear-gradient(to bottom,
+        rgba(0,0,0,0.08) 0%,
+        rgba(0,0,0,0.72) 100%);
+    }
+
+    .hub-card-info {
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      padding: 12px 48px 14px 16px;
+      z-index: 2;
+    }
+    .hub-card-no {
+      font-size: 9px; letter-spacing: 0.28em; text-transform: uppercase;
+      color: var(--gold); margin-bottom: 5px;
+    }
+    .hub-card-artist {
+      font-family: var(--serif);
+      font-size: clamp(15px, 4.5vw, 20px);
+      font-weight: 400; color: #fff; line-height: 1.15;
+    }
+    .hub-card-arrow {
+      position: absolute;
+      top: 50%; right: 14px;
+      transform: translateY(-50%);
+      width: 30px; height: 30px; border-radius: 50%;
+      border: 1px solid rgba(255,255,255,0.28);
+      background: rgba(255,255,255,0.1);
+      color: #fff; font-size: 16px;
+      display: flex; align-items: center; justify-content: center;
+      z-index: 2;
+    }
+
+    /* ── Mobile floating "back to proposals" button ── */
+    #mobile-back-btn {
+      display: none;
+      position: fixed;
+      bottom: 22px; left: 14px;
+      z-index: 500;
+      background: rgba(12,11,10,0.80);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border: 1px solid rgba(197,151,58,0.28);
+      border-radius: 20px;
+      padding: 8px 15px;
+      color: rgba(255,255,255,0.82);
+      font-size: 10.5px; letter-spacing: 0.12em; text-transform: uppercase;
+      cursor: pointer;
+      font-family: var(--sans);
+      transition: background 0.2s, border-color 0.2s;
+      -webkit-tap-highlight-color: transparent;
+    }
+    #mobile-back-btn:active {
+      background: rgba(197,151,58,0.22);
+      border-color: var(--gold);
+    }
+
+    /* ── "View Artworks" button on in-situ slides (mobile only) ── */
+    .mobile-works-btn {
+      display: none; /* shown via media query below */
+      position: absolute;
+      top: 58px; right: 14px;
+      z-index: 10;
+      background: rgba(197,151,58,0.88);
+      border: none;
+      border-radius: 20px;
+      padding: 8px 15px;
+      color: #fff;
+      font-size: 10.5px; letter-spacing: 0.12em; text-transform: uppercase;
+      cursor: pointer;
+      font-family: var(--sans);
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
+      -webkit-tap-highlight-color: transparent;
+      transition: background 0.2s;
+    }
+    .mobile-works-btn:active { background: var(--gold); }
+
+    /* ── Mobile artworks bottom-sheet modal ── */
+    #mobile-works-modal {
+      display: none;
+      position: fixed; inset: 0; z-index: 7000;
+      background: rgba(0,0,0,0.55);
+      align-items: flex-end;
+    }
+    #mobile-works-modal.open { display: flex; }
+
+    .mwm-sheet {
+      background: var(--cream);
+      border-radius: 16px 16px 0 0;
+      width: 100%;
+      max-height: 88dvh;
+      max-height: 88vh;
+      overflow-y: auto;
+      padding-bottom: 32px;
+      animation: sheetIn 0.3s ease;
+    }
+    @keyframes sheetIn {
+      from { transform: translateY(100%); opacity: 0; }
+      to   { transform: translateY(0);    opacity: 1; }
+    }
+
+    .mwm-handle {
+      width: 36px; height: 4px; border-radius: 2px;
+      background: rgba(0,0,0,0.15);
+      margin: 10px auto 0;
+    }
+
+    .mwm-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 14px 18px 12px;
+      border-bottom: 1px solid rgba(197,151,58,0.14);
+      position: sticky; top: 0;
+      background: var(--cream);
+      z-index: 1;
+    }
+    .mwm-proposal-no {
+      font-size: 9px; letter-spacing: 0.26em; text-transform: uppercase;
+      color: var(--gold); margin-bottom: 3px;
+    }
+    .mwm-title {
+      font-family: var(--serif);
+      font-size: 15px; color: var(--charcoal); font-weight: 400;
+    }
+    .mwm-close {
+      width: 30px; height: 30px; border-radius: 50%;
+      border: 1px solid rgba(197,151,58,0.28);
+      background: none; cursor: pointer;
+      color: var(--mid); font-size: 14px;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .mwm-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      padding: 14px 14px 0;
+    }
+    .mwm-card { cursor: pointer; -webkit-tap-highlight-color: transparent; }
+    .mwm-img {
+      aspect-ratio: 4/5;
+      background: #111;
+      overflow: hidden;
+      border-radius: 2px;
+      margin-bottom: 7px;
+    }
+    .mwm-img img {
+      width: 100%; height: 100%;
+      object-fit: contain;
+      display: block;
+      transition: transform 0.3s ease;
+    }
+    .mwm-card:active .mwm-img img { transform: scale(1.04); }
+    .mwm-info-title {
+      font-family: var(--serif);
+      font-size: 12px; color: var(--charcoal); margin-bottom: 2px; line-height: 1.3;
+    }
+    .mwm-info-medium { font-size: 10px; color: var(--mid); }
+
+    /* ── Show mobile elements only on ≤768px ── */
+    @media (max-width: 768px) {
+      .mobile-works-btn { display: block; }
+    }
+
+    /* ── Hide mobile elements entirely on desktop/tablet ── */
+    @media (min-width: 769px) {
+      #mobile-hub,
+      #mobile-back-btn,
+      .mobile-works-btn,
+      #mobile-works-modal { display: none !important; }
+    }
   </style>
 </head>
 <body>
@@ -787,6 +1027,7 @@
     </div>
     <button class="car-arrow car-prev hidden" id="cprev-1" onclick="carShift(1,-1)" aria-label="Previous">&#8592;</button>
     <button class="car-arrow car-next" id="cnext-1" onclick="carShift(1,1)" aria-label="Next">&#8594;</button>
+    <button class="mobile-works-btn" onclick="openMwm(1)">View Artworks</button>
   </div>
 
   <!-- ── SLIDE 2: PROPOSAL 1 ARTWORKS ─────────── -->
@@ -869,6 +1110,7 @@
     </div>
     <button class="car-arrow car-prev hidden" id="cprev-2" onclick="carShift(2,-1)" aria-label="Previous">&#8592;</button>
     <button class="car-arrow car-next" id="cnext-2" onclick="carShift(2,1)" aria-label="Next">&#8594;</button>
+    <button class="mobile-works-btn" onclick="openMwm(2)">View Artworks</button>
   </div>
 
   <!-- ── SLIDE 4: PROPOSAL 2 ARTWORKS ─────────── -->
@@ -948,6 +1190,7 @@
     </div>
     <button class="car-arrow car-prev hidden" id="cprev-3" onclick="carShift(3,-1)" aria-label="Previous">&#8592;</button>
     <button class="car-arrow car-next" id="cnext-3" onclick="carShift(3,1)" aria-label="Next">&#8594;</button>
+    <button class="mobile-works-btn" onclick="openMwm(3)">View Artworks</button>
   </div>
 
   <!-- ── SLIDE 6: PROPOSAL 3 ARTWORKS ─────────── -->
@@ -1025,6 +1268,60 @@
   </div>
 
 </div><!-- /#app -->
+
+
+<!-- ══ MOBILE PROPOSAL HUB ══════════════════════ -->
+<div id="mobile-hub">
+  <div class="hub-header">
+    <img src="assets/image2.png" alt="508 Gallery" class="hub-logo" />
+    <p class="hub-eyebrow">Digital Curation Proposal</p>
+    <h2 class="hub-title">LA Café, Sutton</h2>
+  </div>
+  <div class="hub-cards">
+    <div class="hub-card" onclick="hubSelect(1)">
+      <div class="hub-card-bg" style="background-image:url('assets/image5.jpg')"></div>
+      <div class="hub-card-info">
+        <p class="hub-card-no">Proposal 01</p>
+        <p class="hub-card-artist">Enrico Cecotto</p>
+      </div>
+      <div class="hub-card-arrow">›</div>
+    </div>
+    <div class="hub-card" onclick="hubSelect(2)">
+      <div class="hub-card-bg" style="background-image:url('assets/image11.jpg')"></div>
+      <div class="hub-card-info">
+        <p class="hub-card-no">Proposal 02</p>
+        <p class="hub-card-artist">James Morton</p>
+      </div>
+      <div class="hub-card-arrow">›</div>
+    </div>
+    <div class="hub-card" onclick="hubSelect(3)">
+      <div class="hub-card-bg" style="background-image:url('assets/image17.jpg')"></div>
+      <div class="hub-card-info">
+        <p class="hub-card-no">Proposal 03</p>
+        <p class="hub-card-artist">Max Hembrow &amp; Jessica Howard-Browne</p>
+      </div>
+      <div class="hub-card-arrow">›</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ MOBILE BACK BUTTON ════════════════════════ -->
+<button id="mobile-back-btn" onclick="showMobileHub()">← Proposals</button>
+
+<!-- ══ MOBILE ARTWORKS MODAL ════════════════════ -->
+<div id="mobile-works-modal" onclick="mwmClickOut(event)">
+  <div class="mwm-sheet" onclick="event.stopPropagation()">
+    <div class="mwm-handle"></div>
+    <div class="mwm-header">
+      <div>
+        <p class="mwm-proposal-no" id="mwm-proposal-no"></p>
+        <p class="mwm-title" id="mwm-title">Artworks</p>
+      </div>
+      <button class="mwm-close" onclick="closeMwm()">✕</button>
+    </div>
+    <div class="mwm-grid" id="mwm-grid"></div>
+  </div>
+</div>
 
 
 <!-- ══ LIGHTBOX ══════════════════════════════════ -->
@@ -1321,6 +1618,95 @@ document.addEventListener('keydown', e => {
   if (e.key === 'ArrowRight') lbShift(1);
   if (e.key === 'ArrowLeft')  lbShift(-1);
 });
+
+/* ── Mobile Hub ──────────────────────────────────── */
+function isMobile() { return window.innerWidth <= 768; }
+
+function showMobileHub() {
+  document.getElementById('mobile-hub').classList.add('active');
+  document.getElementById('mobile-back-btn').style.display = 'none';
+  // Scroll app back to cover so it's ready for fresh navigation
+  app.scrollTo({ top: 0, behavior: 'instant' });
+  cur = 0; updateUI();
+}
+
+function hideMobileHub() {
+  document.getElementById('mobile-hub').classList.remove('active');
+  document.getElementById('mobile-back-btn').style.display = 'block';
+}
+
+// proposalN: 1, 2, or 3 → navigates to that in-situ slide
+function hubSelect(proposalN) {
+  const slideMap = { 1: 1, 2: 3, 3: 5 };
+  hideMobileHub();
+  goTo(slideMap[proposalN]);
+}
+
+/* ── Mobile Artworks Modal ───────────────────────── */
+const MWM_DATA = {
+  1: {
+    no: 'Proposal 01',
+    title: 'Enrico Cecotto',
+    works: [
+      { src:'assets/image6.jpg',  title:'Lemon Shark',    medium:'Mixed technique on canvas', idx:0 },
+      { src:'assets/image7.jpg',  title:'Skeleton Shark', medium:'Mixed technique on canvas', idx:1 },
+      { src:'assets/image8.jpg',  title:'Koy Shark',      medium:'Mixed technique on canvas', idx:2 },
+    ]
+  },
+  2: {
+    no: 'Proposal 02',
+    title: 'James Morton',
+    works: [
+      { src:'assets/image12.jpg', title:'Untitled I',   medium:'Oil on wood',   idx:3 },
+      { src:'assets/image13.jpg', title:'Untitled II',  medium:'Oil on canvas', idx:4 },
+      { src:'assets/image14.jpg', title:'Untitled III', medium:'Oil on canvas', idx:5 },
+    ]
+  },
+  3: {
+    no: 'Proposal 03',
+    title: 'Max Hembrow & Jessica Howard-Browne',
+    works: [
+      { src:'assets/image18.jpg', title:'Portrait of a Girl',    medium:'Oil on canvas',     idx:6 },
+      { src:'assets/image19.jpg', title:'Portrait of a Woman',   medium:'Oil on canvas',     idx:7 },
+      { src:'assets/image20.jpg', title:'Bush Feast — ReImagined', medium:'Acrylic on canvas', idx:8 },
+      { src:'assets/image21.jpg', title:'She Knows The Way',     medium:'Acrylic on canvas', idx:9 },
+    ]
+  }
+};
+
+function openMwm(proposalN) {
+  const data = MWM_DATA[proposalN];
+  document.getElementById('mwm-proposal-no').textContent = data.no;
+  document.getElementById('mwm-title').textContent = data.title;
+  const grid = document.getElementById('mwm-grid');
+  grid.innerHTML = '';
+  data.works.forEach(w => {
+    const card = document.createElement('div');
+    card.className = 'mwm-card';
+    card.innerHTML =
+      '<div class="mwm-img"><img src="' + w.src + '" alt="' + w.title + '" loading="lazy" /></div>' +
+      '<div class="mwm-info-title">' + w.title + '</div>' +
+      '<div class="mwm-info-medium">' + w.medium + '</div>';
+    card.addEventListener('click', function() { closeMwm(); openLb(w.idx); });
+    grid.appendChild(card);
+  });
+  document.getElementById('mobile-works-modal').classList.add('open');
+}
+
+function closeMwm() {
+  document.getElementById('mobile-works-modal').classList.remove('open');
+}
+
+function mwmClickOut(e) {
+  if (e.target === document.getElementById('mobile-works-modal')) closeMwm();
+}
+
+// Close modal on Escape
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape' && document.getElementById('mobile-works-modal').classList.contains('open')) {
+    closeMwm();
+  }
+});
 </script>
 
 <!-- ══ PASSWORD GATE ════════════════════════════ -->
@@ -1353,6 +1739,10 @@ async function tryUnlock() {
   const h   = await hashInput(val);
   if (h === PW_HASH) {
     document.getElementById('gate').classList.add('hidden');
+    // On mobile: show the proposal hub as the first screen after login
+    if (typeof showMobileHub === 'function' && window.innerWidth <= 768) {
+      showMobileHub();
+    }
   } else {
     const inp = document.getElementById('gate-input');
     const err = document.getElementById('gate-err');
