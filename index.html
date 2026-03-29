@@ -25,10 +25,10 @@
 
     #app {
       height: 100vh;
+      height: 100dvh; /* dynamic viewport — accounts for mobile browser chrome */
       overflow-y: scroll;
       scroll-snap-type: y mandatory;
       scroll-behavior: smooth;
-      /* hide scrollbar */
       scrollbar-width: none;
     }
     #app::-webkit-scrollbar { display:none; }
@@ -38,9 +38,10 @@
       scroll-snap-stop: always;
       position: relative;
       height: 100vh;
+      height: 100dvh;
       overflow: hidden;
     }
-    /* artwork slides can scroll internally if needed */
+    /* artwork slides: internally scrollable on desktop */
     .slide-works {
       overflow-y: auto;
       scrollbar-width: none;
@@ -421,15 +422,16 @@
     .wcard {
       cursor:pointer;
       display:flex; flex-direction:column;
+      min-height:0;
     }
 
-    /* Image wrap: no cropping, fixed height for slide fit */
+    /* Image wrap: fills remaining space on desktop, fixed height on mobile */
     .wcard-img {
       position:relative;
       overflow:hidden;
       background:#111;
-      flex:1; /* fills remaining space */
-      min-height:0;
+      flex:1;
+      min-height:120px; /* never collapse entirely */
     }
     .wcard-img img {
       width:100%; height:100%;
@@ -602,6 +604,7 @@
     /* ══════════════════════════════════════════
        RESPONSIVE
     ══════════════════════════════════════════ */
+    /* ── Tablet (≤900px) ── */
     @media (max-width:900px) {
       .works-grid-3 { grid-template-columns:repeat(3,1fr); gap:14px; }
       .works-grid-4 { grid-template-columns:repeat(2,1fr); gap:14px; }
@@ -609,34 +612,90 @@
       .is-label { left:28px; bottom:72px; }
       .car-dots { left:28px; bottom:40px; }
     }
+
+    /* ── Mobile (≤768px) ── */
     @media (max-width:768px) {
-      nav { padding:0 20px; height:54px; }
-      .mobile-menu { top:54px; }
+      /* Nav */
+      nav { padding:0 20px; height:50px; }
+      .mobile-menu { top:50px; }
       .nav-links { display:none; }
       .hamburger { display:flex; }
-      .is-label { left:22px; bottom:66px; }
-      .car-dots { left:22px; bottom:36px; }
-      .car-arrow { width:38px; height:38px; font-size:15px; }
-      .car-prev { left:12px; }
-      .car-next { right:12px; }
-      .works-grid-3 { grid-template-columns:1fr 1fr; }
-      .works-grid-4 { grid-template-columns:1fr 1fr; }
-      .slide-works { padding:62px 18px 28px; }
-      .slide-dots { right:10px; }
-      .nav-arrows { bottom:18px; }
-      .lb-inner { flex-direction:column; gap:18px; max-height:94vh; overflow-y:auto; }
-      .lb-img-wrap { max-width:88vw; max-height:52vh; }
+
+      /* Softer snap so artwork slides can scroll freely */
+      #app { scroll-snap-type: y proximity; }
+
+      /* Cover + in-situ: still full-screen snap targets */
+      .slide-cover, .slide-insitu {
+        height: 100vh;
+        height: 100dvh;
+        scroll-snap-stop: always;
+      }
+
+      /* Artwork slides: grow with content instead of clipping it */
+      .slide-works {
+        height: auto;
+        min-height: 100vh;
+        min-height: 100dvh;
+        overflow-y: visible;   /* outer #app handles scrolling */
+        overflow-x: hidden;
+        padding: 60px 16px 48px;
+        scroll-snap-stop: normal; /* don't force-stop; let user scroll through */
+      }
+
+      /* Grid: don't try to fill the whole viewport height */
+      .works-grid {
+        flex: none;
+        height: auto;
+        gap: 14px;
+      }
+      .works-grid-3 { grid-template-columns: 1fr 1fr; }
+      .works-grid-4 { grid-template-columns: 1fr 1fr; }
+
+      /* Artwork card images: fixed height, never stretch */
+      .wcard-img {
+        flex: none;
+        height: 160px;
+      }
+
+      /* P3 four-column → stacked pairs */
+      .works-4col { flex-direction:column; gap:0; flex:none; }
+      .works-artist-pair { flex:none; }
+      .works-pair-inner { gap:12px; flex:none; }
+      .works-pair-inner .wcard-img { height:140px; }
+      .w4-sep { width:auto; height:1px; margin:20px 0; }
+
+      /* Proposal header */
+      .works-header { padding: 12px 0 20px; }
+      .works-artist { font-size:clamp(20px,5vw,32px); }
+
+      /* Carousel labels & controls */
+      .is-label { left:18px; bottom:60px; }
+      .car-dots { left:18px; bottom:32px; }
+      .car-arrow { width:36px; height:36px; font-size:14px; }
+      .car-prev { left:10px; }
+      .car-next { right:10px; }
+
+      /* Side dots & bottom arrows */
+      .slide-dots { right:8px; }
+      .nav-arrows { bottom:14px; }
+
+      /* Lightbox */
+      .lb-inner { flex-direction:column; gap:14px; max-height:94dvh; overflow-y:auto; }
+      .lb-img-wrap { max-width:88vw; max-height:48vh; }
       .lb-meta { min-width:unset; max-width:88vw; }
-      /* P3 4-col → 2×2 stacked on mobile */
-      .works-4col { flex-direction:column; gap:0; }
-      .w4-sep { width:auto; height:1px; margin:16px 0; }
-      .works-pair-inner { gap:12px; }
+
+      /* Portrait panel: smaller on mobile */
+      .car-portrait-panel { right:10px; width:clamp(72px,22vw,120px); }
     }
+
+    /* ── Small mobile (≤480px) ── */
     @media (max-width:480px) {
       .works-grid-3 { grid-template-columns:1fr; }
       .works-grid-4 { grid-template-columns:1fr 1fr; gap:10px; }
-      .is-label { left:16px; bottom:60px; }
-      .car-dots { left:16px; bottom:30px; }
+      .wcard-img { height:140px; }
+      .is-label { left:14px; bottom:56px; }
+      .car-dots { left:14px; bottom:28px; }
+      .is-artist-name { font-size:clamp(22px,7vw,38px); }
     }
   </style>
 </head>
