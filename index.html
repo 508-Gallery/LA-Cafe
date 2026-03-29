@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>508 Gallery · Digital Curation — LA Café, Sutton</title>
   <style>
     *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
@@ -228,6 +228,7 @@
       align-items:center;
       justify-content:center;
       position:relative; /* needed so portrait panel + ::after anchor correctly */
+      overflow:hidden;   /* clip portrait panel's slide-in translateX so it never widens the carousel */
     }
 
     /* Bottom gradient for label readability — lives inside each item */
@@ -798,29 +799,61 @@
       z-index: 2;
     }
 
-    /* ── Mobile floating "back to proposals" button ── */
-    #mobile-back-btn {
+    /* ── Mobile bottom action bar — holds back button + nav arrows ── */
+    #mobile-action-bar {
       display: none;
       position: fixed;
-      bottom: 22px; left: 14px;
-      z-index: 500;
-      background: rgba(12,11,10,0.80);
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
-      border: 1px solid rgba(197,151,58,0.28);
+      bottom: 0; left: 0; right: 0;
+      /* stretch below safe area with colour fill, content sits above */
+      padding-bottom: env(safe-area-inset-bottom, 0px);
+      background: rgba(10,10,10,0.78);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-top: 1px solid rgba(197,151,58,0.14);
+      z-index: 480;
+    }
+    .mab-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 16px 10px;
+      height: 54px;
+    }
+
+    /* ── Mobile floating "back to proposals" button ── */
+    #mobile-back-btn {
+      display: none; /* shown by JS */
+      background: none;
+      border: 1px solid rgba(197,151,58,0.4);
       border-radius: 20px;
-      padding: 8px 15px;
-      color: rgba(255,255,255,0.82);
-      font-size: 10.5px; letter-spacing: 0.12em; text-transform: uppercase;
+      padding: 8px 16px;
+      color: rgba(255,255,255,0.85);
+      font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase;
       cursor: pointer;
       font-family: var(--sans);
       transition: background 0.2s, border-color 0.2s;
       -webkit-tap-highlight-color: transparent;
+      white-space: nowrap;
     }
     #mobile-back-btn:active {
       background: rgba(197,151,58,0.22);
       border-color: var(--gold);
     }
+
+    /* ── Mobile nav arrows (inside action bar on mobile) ── */
+    .mab-arrows { display: flex; gap: 8px; }
+    .mab-arr {
+      width: 40px; height: 40px; border-radius: 50%;
+      border: 1px solid rgba(255,255,255,0.18);
+      background: rgba(255,255,255,0.08);
+      color: rgba(255,255,255,0.7);
+      font-size: 16px; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: background 0.2s;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .mab-arr:active { background: rgba(255,255,255,0.18); }
+    .mab-arr:disabled { opacity: 0.22; pointer-events: none; }
 
     /* ── "View Artworks" button on in-situ slides (mobile only) ── */
     .mobile-works-btn {
@@ -929,12 +962,24 @@
     /* ── Show mobile elements only on ≤768px ── */
     @media (max-width: 768px) {
       .mobile-works-btn { display: block; }
+      #mobile-action-bar { display: block; }
+
+      /* artwork slides need bottom padding to clear the 54px action bar + safe area */
+      .slide-works {
+        padding-bottom: calc(70px + env(safe-area-inset-bottom, 0px));
+      }
+
+      /* hide the original desktop nav-arrows on mobile — action bar takes over */
+      .nav-arrows { display: none; }
+
+      /* hide side dots on mobile to reduce clutter */
+      .slide-dots { display: none; }
     }
 
     /* ── Hide mobile elements entirely on desktop/tablet ── */
     @media (min-width: 769px) {
       #mobile-hub,
-      #mobile-back-btn,
+      #mobile-action-bar,
       .mobile-works-btn,
       #mobile-works-modal { display: none !important; }
     }
@@ -1305,8 +1350,16 @@
   </div>
 </div>
 
-<!-- ══ MOBILE BACK BUTTON ════════════════════════ -->
-<button id="mobile-back-btn" onclick="showMobileHub()">← Proposals</button>
+<!-- ══ MOBILE ACTION BAR (back btn + nav arrows) ═ -->
+<div id="mobile-action-bar">
+  <div class="mab-inner">
+    <button id="mobile-back-btn" onclick="showMobileHub()">← Proposals</button>
+    <div class="mab-arrows">
+      <button class="mab-arr" id="mab-prev" onclick="goTo(cur-1)" aria-label="Previous slide">↑</button>
+      <button class="mab-arr" id="mab-next" onclick="goTo(cur+1)" aria-label="Next slide">↓</button>
+    </div>
+  </div>
+</div>
 
 <!-- ══ MOBILE ARTWORKS MODAL ════════════════════ -->
 <div id="mobile-works-modal" onclick="mwmClickOut(event)">
@@ -1386,9 +1439,15 @@ function updateUI() {
   document.querySelectorAll('.dot').forEach((d, i) => {
     d.classList.toggle('active', i === cur);
   });
-  // arrows disabled state
+  // desktop arrows disabled state
   document.getElementById('btn-prev').disabled = cur === 0;
   document.getElementById('btn-next').disabled = cur === TOTAL - 1;
+
+  // mobile action-bar arrows disabled state
+  const mabPrev = document.getElementById('mab-prev');
+  const mabNext = document.getElementById('mab-next');
+  if (mabPrev) mabPrev.disabled = cur === 0;
+  if (mabNext) mabNext.disabled = cur === TOTAL - 1;
 
   // dot/arrow colour: light on dark slides (cover + in-situ), dark on artwork slides
   const isDark = [0,1,3,5].includes(cur);
@@ -1718,7 +1777,20 @@ document.addEventListener('keydown', e => {
     <p class="gate-sub">Digital Curation Proposal · Private Access</p>
     <div class="gate-input-wrap">
       <input id="gate-input" type="password" placeholder="Enter password" autocomplete="off" />
-      <button class="gate-toggle" id="gate-toggle" aria-label="Show password">&#128065;</button>
+      <button class="gate-toggle" id="gate-toggle" aria-label="Show password">
+        <!-- eye-closed: shown when password is hidden (dots) -->
+        <svg id="eye-closed" xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/>
+          <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/>
+          <path d="M14.12 14.12a3 3 0 1 1-4.24-4.24"/>
+          <line x1="1" y1="1" x2="23" y2="23"/>
+        </svg>
+        <!-- eye-open: shown when password is visible -->
+        <svg id="eye-open" xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" style="display:none">
+          <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+          <circle cx="12" cy="12" r="3"/>
+        </svg>
+      </button>
     </div>
     <button id="gate-btn">View Proposals</button>
     <span id="gate-err"></span>
@@ -1759,10 +1831,14 @@ document.getElementById('gate-input').addEventListener('keydown', e => {
   document.getElementById('gate-err').textContent = '';
 });
 
-// Show / hide password toggle
+// Show / hide password toggle — swap open/closed eye SVG
 document.getElementById('gate-toggle').addEventListener('click', () => {
-  const inp = document.getElementById('gate-input');
-  inp.type = inp.type === 'password' ? 'text' : 'password';
+  const inp       = document.getElementById('gate-input');
+  const isHidden  = inp.type === 'password';
+  inp.type        = isHidden ? 'text' : 'password';
+  // closed eye shown when password is hidden; open eye when visible
+  document.getElementById('eye-closed').style.display = isHidden ? 'none'  : '';
+  document.getElementById('eye-open').style.display   = isHidden ? ''      : 'none';
 });
 </script>
 </body>
